@@ -55,9 +55,11 @@ void sortCorners(std::vector<cv::Point2f>& corners,
 
 int main()
 {
-    cv::Mat src = cv::imread("image2.jpg");
+    cv::Mat src = cv::imread("IMAG2164.jpg");
 	if (src.empty())
 		return -1;
+
+    cv::resize(src, src, cv::Size(src.cols/5, src.rows/5));
 
 	cv::Mat bw;
     cv::cvtColor(src, bw, CV_BGR2GRAY);
@@ -66,6 +68,8 @@ int main()
     cv::Canny(bw, bw, 100, 100, 3);
 
     cv::imshow("Get_the_edge_map", bw);
+
+
 
 
 	std::vector<cv::Vec4i> lines;
@@ -87,7 +91,7 @@ int main()
 
     cv::Mat dst2 = src.clone();
     std::vector<cv::Vec2f> lines_cartesian;
-    cv::HoughLines(bw, lines_cartesian, 1, CV_PI/180, 100, 0, 0);
+    cv::HoughLines(bw, lines_cartesian, 1, CV_PI/180, 100, 1 , 1);
     std::cout<<"** lines_cartesian.size() = " << lines_cartesian.size() <<std::endl;
 
     std::vector<cv::Vec2f> resV;
@@ -120,7 +124,7 @@ int main()
         cv::Vec4i tmp(pt1.x, pt1.y, pt2.x, pt2.y);
         lines.push_back(tmp);
     }
-    cv::line(dst2, cv::Point(0, 0), cv::Point(150, 150), CV_RGB(255,0,0), 3);
+    //cv::line(dst2, cv::Point(0, 0), cv::Point(150, 150), CV_RGB(255,0,0), 3);
 
     cv::imshow("dst2", dst2);
     cv::waitKey();
