@@ -12,7 +12,7 @@ cv::Mat src;
 cv::Mat bw;
 cv::Mat contMat;
 
-int g_thresh = 100;
+int g_thresh = 50;
 int g_blur = 3;
 CvMemStorage* g_storage = NULL;
 cv::RNG rng(12345);
@@ -26,7 +26,7 @@ void on_trackbar(int) {
     if(g_blur == 0) g_blur = 1;
     //cv::blur(contMat, contMat, cv::Size(g_blur, g_blur));
     cv::GaussianBlur(contMat, contMat, cv::Size(7,7), 1.5, 1.5);
-    cv::Canny(contMat, contMat, g_thresh, g_thresh*2, 3);
+    cv::Canny(contMat, contMat, g_thresh, g_thresh*4, 3);
     cv::Mat cropMat = contMat.clone();
 
     //cv::threshold( contMat, contMat, g_thresh, 255, CV_THRESH_BINARY );

@@ -159,13 +159,13 @@ int findPointRect(cv::Mat src, cv::Mat bw)
         for (int j = i+1; j < resV.size(); j++)
         {
             float angleLine = resV[i][1] - resV[j][1];
-            if(angleLine < abs(0.4))
+            if( abs(angleLine) < 0.4)
                 continue;
             cv::Point2f pt = computeIntersect2(resV[i], resV[j]);
             if (pt.x >= 0 && pt.y >= 0)
             {
                 corners.push_back(pt);
-                //std::cout<<"*** Angle between lines = " << resV[i][1] - resV[j][1] <<std::endl;
+                std::cout<<"*** Angle between lines = " << angleLine <<std::endl;
                 std::cout<<"***NEW corners x = " << pt.x << "\t y = " << pt.y <<std::endl;
             }
         }
