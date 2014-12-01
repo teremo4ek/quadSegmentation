@@ -1,18 +1,16 @@
- /**
- * Automatic perspective correction for quadrilateral objects. See the tutorial at
- * http://opencv-code.com/tutorials/automatic-perspective-correction-for-quadrilateral-objects/
- */
+
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
 
+
 cv::Point2f center(0,0);
+cv::RNG rng_new(12345);
 
 cv::Point2f computeIntersect(cv::Vec4i a, 
                              cv::Vec4i b)
 {
 	int x1 = a[0], y1 = a[1], x2 = a[2], y2 = a[3], x3 = b[0], y3 = b[1], x4 = b[2], y4 = b[3];
-	float denom;
 
 	if (float d = ((float)(x1 - x2) * (y3 - y4)) - ((y1 - y2) * (x3 - x4)))
 	{
@@ -53,30 +51,22 @@ void sortCorners(std::vector<cv::Point2f>& corners,
 	}
 }
 
-int main()
+int findPointRect(cv::Mat src, cv::Mat bw)
 {
-    cv::Mat src = cv::imread("IMAG2164.jpg");
 	if (src.empty())
 		return -1;
+		
+	if (bw.empty())
+		return -1;
 
-    cv::resize(src, src, cv::Size(src.cols/5, src.rows/5));
+    cv::cvtColor(bw, bw, CV_BGR2GRAY);
 
-	cv::Mat bw;
-    cv::cvtColor(src, bw, CV_BGR2GRAY);
-    //cv::preCornerDetect(bw, bw, 3);
-    cv::blur(bw, bw, cv::Size(3, 3));
-    cv::Canny(bw, bw, 100, 100, 3);
-
-    cv::imshow("Get_the_edge_map", bw);
-
-
-
+    std::vector<cv::vector<cv::Point> > contours;
+    std::vector<cv::Vec4i> hierarchy;
 
 	std::vector<cv::Vec4i> lines;
 //    cv::HoughLinesP(bw, lines, 1, CV_PI/180, 100, 70, 0);
-
 //    std::cout<<"** lines.size() = " << lines.size() <<std::endl;
-
 //    cv::Mat dst1 = src.clone();
 //    // Draw lines
 //    for (int i = 0; i < lines.size(); i++)
@@ -85,13 +75,12 @@ int main()
 //        cv::line(dst1, cv::Point(v[0], v[1]), cv::Point(v[2], v[3]), CV_RGB(255*i/lines.size(),0,0), 3);
 //        //cv::line(dst1, cv::Point(0, 0), cv::Point(150, 150), CV_RGB(0,255,0));
 //    }
-
 //    cv::imshow("dst1", dst1);
 //    //cv::waitKey();
 
     cv::Mat dst2 = src.clone();
     std::vector<cv::Vec2f> lines_cartesian;
-    cv::HoughLines(bw, lines_cartesian, 1, CV_PI/180, 100, 1 , 1);
+    cv::HoughLines(bw, lines_cartesian, 1, CV_PI/180, 100, 0 , 0);
     std::cout<<"** lines_cartesian.size() = " << lines_cartesian.size() <<std::endl;
 
     std::vector<cv::Vec2f> resV;
@@ -103,7 +92,7 @@ int main()
         auto it = std::find_if(resV.begin(), resV.end(), [rho, theta](cv::Vec2f&v) {
                 //std::cout<<"** rho = " << rho << "\t v[0] = " << v[0] <<std::endl;
                 //std::cout<<"** abs(theta - v[0]) = " << abs(theta - v[1]) << std::endl;
-                return (abs(rho - v[0]) < 10) && abs(theta - v[1]) < 0.2 ;
+                return (abs(rho - v[0]) < 20) && abs(theta - v[1]) < 0.2 ;
         });
         if (it != resV.end())
             continue;
@@ -119,7 +108,7 @@ int main()
         pt2.x = cvRound(x0 -  1000*(-b)); //the second point
         pt2.y = cvRound(y0 -  1000*(a)); //the second point
 
-        cv::line(dst2, pt1, pt2, CV_RGB(255*i/lines_cartesian.size(),0,0), 3);
+        cv::line(dst2, pt1, pt2, CV_RGB(255,0,0), 3);
 
         cv::Vec4i tmp(pt1.x, pt1.y, pt2.x, pt2.y);
         lines.push_back(tmp);
@@ -158,6 +147,7 @@ int main()
 			cv::Point2f pt = computeIntersect(lines[i], lines[j]);
 			if (pt.x >= 0 && pt.y >= 0)
 				corners.push_back(pt);
+                std::cout<<"***calc corners x = " << pt.x << "\t y = " << pt.y <<std::endl;
 		}
 	}
 
@@ -212,7 +202,7 @@ int main()
 	cv::warpPerspective(src, quad, transmtx, quad.size());
 
 	cv::imshow("image", dst);
-	cv::imshow("quadrilateral", quad);
+    cv::imshow("quadrilateral", quad);
 	cv::waitKey();
 	return 0;
 }

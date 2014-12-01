@@ -1,5 +1,8 @@
 
-SOURCES       = quad-segmentation.cpp
+HEADERS       = quadsegmentation.h
+
+SOURCES       = main.cpp \
+                quadsegmentation.cpp
 
 # OpenCV support
 
