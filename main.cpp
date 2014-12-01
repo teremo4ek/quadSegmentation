@@ -93,8 +93,31 @@ void on_trackbar(int) {
     cv::findContours(cropMat, contours1, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 
     // CV_FILLED fills the connected components found
-    cv::drawContours(cropMat, contours1, -1, cv::Scalar(255), CV_FILLED);
-    cv::imshow( "cropMat", cropMat );
+    //cv::drawContours(cropMat, contours1, -1, cv::Scalar(255), CV_FILLED);
+    std::vector<cv::RotatedRect> minRect( contours1.size() );
+    std::vector<cv::RotatedRect> minEllipse( contours1.size() );
+
+    for( int i = 0; i < contours1.size(); i++ )
+     { minRect[i] = cv::minAreaRect( cv::Mat(contours1[i]) );
+       if( contours1[i].size() > 5 )
+         { minEllipse[i] = fitEllipse( cv::Mat(contours1[i]) ); }
+     }
+
+    /// Draw contours1 + rotated rects + ellipses
+    cv::Mat drawing = cv::Mat::zeros( cropMat.size(), CV_8UC3 );
+     for( int i = 0; i< contours1.size(); i++ )
+     {
+       cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+       // contour
+       cv::drawContours( drawing, contours1, i, color, 1, 8, std::vector<cv::Vec4i>(), 0, cv::Point() );
+       // ellipse
+       //cv::ellipse( drawing, minEllipse[i], color, 2, 8 );
+       // rotated rectangle
+       cv::Point2f rect_points[4]; minRect[i].points( rect_points );
+       //for( int j = 0; j < 4; j++ )
+       //   line( drawing, rect_points[j], rect_points[(j+1)%4], color, 1, 8 );
+     }
+    cv::imshow( "cropMat", drawing );
 }
 
 int main( int argc, char** argv )

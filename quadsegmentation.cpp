@@ -88,22 +88,7 @@ int findPointRect(cv::Mat src, cv::Mat bw)
 
     cv::cvtColor(bw, bw, CV_BGR2GRAY);
 
-    std::vector<cv::vector<cv::Point> > contours;
-    std::vector<cv::Vec4i> hierarchy;
-
     std::vector<cv::Vec4i> lines;
-//    cv::HoughLinesP(bw, lines, 1, CV_PI/180, 100, 70, 0);
-//    std::cout<<"** lines.size() = " << lines.size() <<std::endl;
-//    cv::Mat dst1 = src.clone();
-//    // Draw lines
-//    for (int i = 0; i < lines.size(); i++)
-//    {
-//        cv::Vec4i v = lines[i];
-//        cv::line(dst1, cv::Point(v[0], v[1]), cv::Point(v[2], v[3]), CV_RGB(255*i/lines.size(),0,0), 3);
-//        //cv::line(dst1, cv::Point(0, 0), cv::Point(150, 150), CV_RGB(0,255,0));
-//    }
-//    cv::imshow("dst1", dst1);
-//    //cv::waitKey();
 
     cv::Mat dst2 = src.clone();
     std::vector<cv::Vec2f> lines_cartesian;
